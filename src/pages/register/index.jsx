@@ -1,35 +1,30 @@
 import { Button, Divider, Form, Input, message, notification } from "antd";
-import "../register/register.scss";
+import "./register.scss";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../service/apiService";
-import { useDispatch } from "react-redux";
-import { doLoginAction } from "../../redux/account/accountSlice";
-
-const LoginPage = () => {
+import { registerUser } from "../../service/apiService";
+const RegisterPage = () => {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
-  const dispatch = useDispatch()
+
   const onFinish = async (values) => {
-    const {email, password} = values;
+    const { fullName, email, password, phone } = values;
     setIsRegister(true);
-    const res = await loginUser(email, password);
-    console.log("check", res)
+    const res = await registerUser(fullName, email, password, phone);
     setIsRegister(false);
-    if (res?.data) {
-      localStorage.setItem('access_token',res.data.access_token)
-      dispatch(doLoginAction(res.data.user))
-      message.success("Đăng nhập thành công!");
-      navigate("/");
-    }else{
+    if (res?.data?._id) {
+      message.success("Đăng ký thành công bro!");
+      navigate("/login");
+    }
+    if (res?.error) {
       notification.error({
         message: `Có lỗi xảy ra`,
         description:
-          res.message && res.message.length > 0 ? res.message : 'Có lỗi',
+          res.message && res.message.length > 0 ? res.message : res.message,
         duration: 3,
       });
     }
-    
+    // console.log('data:', res);
   };
 
   return (
@@ -38,7 +33,7 @@ const LoginPage = () => {
         <div className="container">
             <section className="wrapper">
                 <div className="heading">
-                    <h2 className="text text-large">Đăng nhập Tài Khoản</h2>
+                    <h2 className="text text-large">Đăng Ký Tài Khoản</h2>
                     <Divider />
                 </div>
                 <Form
@@ -47,7 +42,16 @@ const LoginPage = () => {
                     onFinish={onFinish}
                     autoComplete="off"
                 >
-                    
+                    <Form.Item
+                        labelCol={{ span: 24 }} //whole column
+                        label="Họ tên"
+                        name="fullName"
+                        rules={[{ required: true, message: 'Họ tên không được để trống!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+
                     <Form.Item
                         labelCol={{ span: 24 }} //whole column
                         label="Email"
@@ -65,18 +69,26 @@ const LoginPage = () => {
                     >
                         <Input.Password />
                     </Form.Item>
+                    <Form.Item
+                        labelCol={{ span: 24 }} //whole column
+                        label="Số điện thoại"
+                        name="phone"
+                        rules={[{ required: true, message: 'Số điện thoại không được để trống!' }]}
+                    >
+                        <Input />
+                    </Form.Item>
 
                     <Form.Item
                     // wrapperCol={{ offset: 6, span: 16 }}
                     >
                         <Button type="primary" htmlType="submit" loading={isRegister}>
-                            Đăng nhập
+                            Đăng ký
                         </Button>
                     </Form.Item>
                     <Divider>Or</Divider>
-                    <p className="text text-normal">Chưa có tài khoản ?
+                    <p className="text text-normal">Đã có tài khoản ?
                         <span>
-                            <Link to='/register' > Đăng ký </Link>
+                            <Link to='/login' > Đăng Nhập </Link>
                         </span>
                     </p>
                 </Form>
@@ -87,4 +99,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
