@@ -32,7 +32,7 @@ export default function App() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.account.isAuthenticated)
   const getAccount = async() => {
-      if(window.location.pathname === '/login' || window.location.pathname === '/admin') return
+      if(window.location.pathname === '/login') return
       const res = await callFetchAccount()
       console.log("check res", res)
       if(res && res.data){
@@ -64,13 +64,13 @@ export default function App() {
 
     {
       path: "/admin",
-      element: 
-        <ProtectedRoute>
-          <AdminPage/>
-        </ProtectedRoute>,
+      element: <Layout/>,
       errorElement: <NotFound/>,
       children: [
-        { index:true, element: <Home/>}
+        { index:true, element: 
+        <ProtectedRoute>
+          <AdminPage/>
+        </ProtectedRoute>}
         ,
         {
           path: "user",
@@ -93,7 +93,7 @@ export default function App() {
     },
   ]);
       return (
-        <>{ isAuthenticated === true || window.location.pathname === '/login' || window.location.pathname === '/admin'?
+        <>{ isAuthenticated === true || window.location.pathname === '/login' ?
          
           <RouterProvider router={router} /> 
           :
